@@ -1,5 +1,10 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## 저장 방법
+
+1. git remote add origin https://...
+2. git push --set-upstream origin master
+
 ## Available Scripts
 
 In the project directory, you can run:

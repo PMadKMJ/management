@@ -35,12 +35,16 @@ class App extends Component {
   //모두 마운트 되고 나서 api호출하는 방식, 프록시 설정 후 서버 다시 시작해야된다.
   //네트워크 검사는 3000번이지만 실제로는 5000번 접근으로 하는 것이다.
   componentDidMount() {
+    //progress loading
     this.timer = setInterval(this.progress, 20);
+    //call api
     this.callApi()
       .then(res => this.setState({ customers : res }))
       .catch(err => console.log(err));
   }
 
+
+  //exit progress
   componentWillUnmount() {
     clearInterval(this.timer);
   }

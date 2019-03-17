@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.port || 5000;
@@ -6,37 +7,36 @@ const port = process.env.port || 5000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended : true }));
 
+
+//json 파일 우선 읽기( fs require 필요)
+const data = fs.readFileSync('./database.json');
+//json parse
+const conf = JSON.parse(data);
+//require mysql
+const mysql = require('mysql');
+//mysql에 connect
+const connection = mysql.createConnection({
+    host: conf.host,
+    user : conf.user,
+    password : conf.password,
+    port : conf.port,
+    database : conf.database
+})
+// connection에 해당하는 (지금은 database.json에 기록된) 주소에 연결시킨다.
+connection.connect();
+
 app.get('/api/customers', (req, res) => {
     //서버와 클라이언트 간의 연결 고리. 처음 클라이언트와 연결할때 하드코딩 데이터를 넣어보고 확인 후 데이터베이스로 연결하자.
     //클라이언트 package.json에서 프록시 설정으로 서로 연결 필요.
     //get 함수 내에는 전송해야할 데이터 내용 필요.
-    res.send(
-        [
-            {
-            'id' : '1',
-            'image' : 'https://placeimg.com/64/64/any',
-            'name' : 'minajeKIM',
-            'birthday' : '950613',
-            'gender' : 'male',
-            'job' : 'student'
-            },
-            {
-              'id' : '2',
-              'image' : 'https://placeimg.com/64/64/any',
-              'name' : 'somebody',
-              'birthday' : '123456',
-              'gender' : 'famale',
-              'job' : 'student'
-            },
-            {
-              'id' : '3',
-              'image' : 'https://placeimg.com/64/64/any',
-              'name' : 'nobody',
-              'birthday' : '098765',
-              'gender' : 'male',
-              'job' : 'student'
-            },
-        ]
+    //db connect 시 꼭 npm i --save mysql 할 것!
+    // res.send(); 은 db 연결 전 server와 client 연결 확인시에 필요
+    // 밑줄은 mysql에서 명령 실행 
+    connection.query(
+        "SELECT * FROM CUSTOMER",
+        (err, rows, fields) => {
+            res.send(rows);
+        }
     )
 });
 

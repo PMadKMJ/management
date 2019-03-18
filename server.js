@@ -24,6 +24,9 @@ const connection = mysql.createConnection({
 })
 // connection에 해당하는 (지금은 database.json에 기록된) 주소에 연결시킨다.
 connection.connect();
+//file 형태를 불러오기 위해서는 multer 필요
+const multer = require('multer');
+const upload = multer({dest : './upload'})
 
 app.get('/api/customers', (req, res) => {
     //서버와 클라이언트 간의 연결 고리. 처음 클라이언트와 연결할때 하드코딩 데이터를 넣어보고 확인 후 데이터베이스로 연결하자.
@@ -38,6 +41,29 @@ app.get('/api/customers', (req, res) => {
             res.send(rows);
         }
     )
+});
+//upload파일에 사용자가 접근해서 프로필 사진을 확인할 수 있게 한다.
+app.use('/image', express.static('./upload'));
+
+app.post('/api/customers', upload.single('image'), (req, res) => {
+    let sql = 'INSERT INTO CUSTOMER VALUES (null, ?, ?, ?, ?, ?)'
+    let image = '/image/' + req.file.filename;
+    let name = req.body.name;
+    let birthday = req.body.birthday;
+    let gender = req.body.gender;
+    let job = req.body.job;
+    let params = [image, name, birthday, gender, job];
+    console.log(image);
+    console.log(name);
+    console.log(birthday);
+    console.log(gender);
+    console.log(job);
+    connection.query(sql, params, 
+        (err, rows, fields) => {
+            res.send(rows);
+            console.log(rows);
+            console.log(err);
+        })
 });
 
 app.listen(port, () => console.log(`listening on port ${port}`));

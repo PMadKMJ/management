@@ -28,11 +28,25 @@ const styles = theme => ({
 class App extends Component {
 
   // api로부터 받아오는 데이터는 비동기처리이기 때문에 변할 수 있으므로 state로 처리하는 것이 옳다.
-  state = {
-    customers : "",
-    completed : 0,
+  constructor(props){
+    super(props)
+
+    this.state = {
+      customers: '',
+      completed: 0
+    }
   }
   
+  stateRefresh = () => {
+    this.setState({
+      customers: '',
+      completed: 0
+    });
+    this.callApi()
+      .then(res => this.setState({ customers : res }))
+      .catch(err => console.log(err));
+  };
+
   //모두 마운트 되고 나서 api호출하는 방식, 프록시 설정 후 서버 다시 시작해야된다.
   //네트워크 검사는 3000번이지만 실제로는 5000번 접근으로 하는 것이다.
   componentDidMount() {
@@ -75,13 +89,15 @@ class App extends Component {
                 <TableCell>생년월일</TableCell>
                 <TableCell>성별</TableCell>
                 <TableCell>직업</TableCell>
+                <TableCell>설정</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               { this.state.customers ?
                 this.state.customers.map(c => {
                   return(
-                    <Customer 
+                    <Customer
+                      stateRefresh={this.stateRefresh}
                       key={c.id}
                       id={c.id}
                       image={c.image}
@@ -106,7 +122,7 @@ class App extends Component {
             </TableBody>
           </Table>
         </Paper>
-        <CustomerAdd/>
+        <CustomerAdd stateRefresh={this.stateRefresh}/>
       </div>
     );
   }
